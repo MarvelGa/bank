@@ -1,7 +1,10 @@
 package com.banksystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Card {
     public enum Currency {
         USD, UAH, EUR

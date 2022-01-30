@@ -1,9 +1,12 @@
 package com.banksystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Client extends User {
     private final List<Account> accounts;
 
@@ -96,7 +99,7 @@ public class Client extends User {
         }
 
         @Override
-        public ClientBuilder withDateOfBirth(LocalDate dateOfBirth) {
+        public ClientBuilder withDateOfBirth(String dateOfBirth) {
             super.withDateOfBirth(dateOfBirth);
             return self();
         }

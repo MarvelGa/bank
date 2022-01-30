@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
-    @GetMapping({"/", "/home"})
-    protected String  getHome()  {
+    @GetMapping("/bank-api")
+    public String  showHomePage()  {
         return "home";
     }
 }

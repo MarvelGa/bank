@@ -2,13 +2,18 @@ package com.banksystem;
 
 
 import com.banksystem.entity.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         Card card1 = Card.builder()
                 .withId(1L)
                 .withNumber("102020")
@@ -51,7 +56,7 @@ public class Main {
                 .withEmail("petro@gmail.com")
                 .withPassword("petro123")
                 .withRole(User.Role.CLIENT)
-                .withDateOfBirth(LocalDate.of(1980, Month.JANUARY, 1))
+                .withDateOfBirth((LocalDate.of(1980, Month.JANUARY, 1)).toString())
                 .withAccountList(List.of(account1))
                 .build();
 
@@ -62,7 +67,7 @@ public class Main {
                 .withEmail("stepanenko@gmail.com")
                 .withPassword("stepanenko123")
                 .withRole(User.Role.CLIENT)
-                .withDateOfBirth(LocalDate.of(1985, Month.FEBRUARY, 1))
+                .withDateOfBirth((LocalDate.of(1985, Month.FEBRUARY, 1)).toString())
                 .withAccountList(List.of(account2))
                 .build();
 
@@ -74,7 +79,7 @@ public class Main {
                 .withPassword("bob123")
                 .withRole(User.Role.MANAGER)
                 .withSpecialization("Manager Of Mortgage")
-                .withDateOfBirth(LocalDate.of(1990, Month.JANUARY, 1))
+                .withDateOfBirth((LocalDate.of(1990, Month.JANUARY, 1)).toString())
                 .withAccountList(List.of(account1))
                 .build();
 
@@ -86,10 +91,13 @@ public class Main {
                 .withPassword("stepanova123")
                 .withRole(User.Role.MANAGER)
                 .withSpecialization("Manager Of Credits")
-                .withDateOfBirth(LocalDate.of(1992, Month.JANUARY, 10))
+                .withDateOfBirth((LocalDate.of(1992, Month.JANUARY, 10)).toString())
                 .withAccountList(List.of(account2))
                 .build();
 
         System.out.println(client1.getId());
+
+        String jsonClient = objectMapper.writeValueAsString(client1);
+        System.out.println(jsonClient);
     }
 }

@@ -1,9 +1,12 @@
 package com.banksystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Manager extends User {
     private final String specialization;
     private final List<Account> accounts;
@@ -105,7 +108,7 @@ public class Manager extends User {
         }
 
         @Override
-        public ManagerBuilder withDateOfBirth(LocalDate dateOfBirth) {
+        public ManagerBuilder withDateOfBirth(String dateOfBirth) {
             super.withDateOfBirth(dateOfBirth);
             return self();
         }
