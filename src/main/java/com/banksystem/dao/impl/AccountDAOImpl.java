@@ -3,6 +3,7 @@ package com.banksystem.dao.impl;
 import com.banksystem.dao.AccountDAO;
 import com.banksystem.dao.dbmanager.DBManager;
 import com.banksystem.dto.AccountResponse;
+import com.banksystem.dto.RequestAccount;
 import com.banksystem.entity.Account;
 import com.banksystem.exceptions.DAOException;
 
@@ -39,7 +40,7 @@ public class AccountDAOImpl implements AccountDAO {
             "JOIN users u ON u.id=c.user_id; ";
 
     @Override
-    public Long create(Account item) throws DAOException {
+    public Long create(RequestAccount item) throws DAOException {
         final String query = CREATE_ACCOUNT;
         DBManager dbm;
         PreparedStatement pstmt = null;
@@ -50,13 +51,14 @@ public class AccountDAOImpl implements AccountDAO {
             dbm = DBManager.getInstance();
             con = dbm.getConnection();
             pstmt = con.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-            pstmt.setLong(1, item.getManager().getId());
-            pstmt.setLong(2, item.getUser().getId());
+            pstmt.setLong(1, item.getManagerId());
+            pstmt.setLong(2, item.getUserId());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs != null && rs.next()) {
                 insertedAccount = rs.getLong(1);
             }
+            con.commit();
         } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't create Account by id", ex);
@@ -99,7 +101,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public boolean update(Account item) throws DAOException {
+    public boolean update(RequestAccount item) throws DAOException {
         final String query = UPDATE_ACCOUNT;
         DBManager dbm;
         Connection con = null;
@@ -108,8 +110,8 @@ public class AccountDAOImpl implements AccountDAO {
             dbm = DBManager.getInstance();
             con = dbm.getConnection();
             pstmt = con.prepareStatement(query);
-            pstmt.setLong(1, item.getManager().getId());
-            pstmt.setLong(1, item.getId());
+            pstmt.setLong(1, item.getManagerId());
+            pstmt.setLong(2, item.getId());
             pstmt.executeUpdate();
             con.commit();
         } catch (SQLException ex) {

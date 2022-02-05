@@ -83,7 +83,7 @@ public class ManagerController {
     }
 
     @PutMapping("/manager")
-    public Manager updateClient(@RequestBody RequestManager request) {
+    public Manager updateManager(@RequestBody RequestManager request) {
         Manager updated = null;
 
         Manager manager = Manager.builder()
