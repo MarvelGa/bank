@@ -1,8 +1,8 @@
 package com.banksystem.dto;
 
 public class RequestManager extends BaseUserRequest {
-    public Long id;
-    public String specialization;
+    private Long id;
+    private String specialization;
 
     public Long getId() {
         return id;

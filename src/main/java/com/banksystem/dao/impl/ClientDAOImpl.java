@@ -35,6 +35,7 @@ public class ClientDAOImpl implements ClientDAO {
     private static final String INSERT_CLIENT = "INSERT INTO clients (user_id) VALUES (?);";
     private static final String DELETE_CLIENT = "DELETE FROM users u WHERE u.id=(SELECT c.user_id FROM clients c WHERE c.id=?)";
     private static final String UPDATE_CLIENT = "UPDATE users SET first_name=?, last_name=?, email=?, passwords=? WHERE id =(SELECT c.user_id FROM clients c WHERE c.id=?)";
+
     @Override
     public List<Client> getAllClientsByManagerId(Long managerId) throws DAOException {
         final String query = GET_CLIENTS_BY_MANAGER;
@@ -108,6 +109,8 @@ public class ClientDAOImpl implements ClientDAO {
         } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't create Client", ex);
+        } finally {
+            DBManager.close(con, pstmt, rs);
         }
         return insertedClientId;
     }
@@ -137,6 +140,8 @@ public class ClientDAOImpl implements ClientDAO {
         } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't read Client", ex);
+        } finally {
+            DBManager.close(con, pstmt, rs);
         }
         return client;
     }
@@ -145,13 +150,13 @@ public class ClientDAOImpl implements ClientDAO {
     public boolean update(Client item) throws DAOException {
         final String query = UPDATE_CLIENT;
         DBManager dbm;
-        Connection con =null;
-        PreparedStatement pstmt =null;
-        try{
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
             dbm = DBManager.getInstance();
             con = dbm.getConnection();
             pstmt = con.prepareStatement(query);
-            int k =1;
+            int k = 1;
             pstmt.setString(k++, item.getFirstName());
             pstmt.setString(k++, item.getLastName());
             pstmt.setString(k++, item.getEmail());
@@ -159,9 +164,11 @@ public class ClientDAOImpl implements ClientDAO {
             pstmt.setLong(k, item.getId());
             pstmt.executeUpdate();
             con.commit();
-        }catch (SQLException ex){
-        DBManager.rollback(con);
-        throw new DAOException("Can't update Client", ex);
+        } catch (SQLException ex) {
+            DBManager.rollback(con);
+            throw new DAOException("Can't update Client", ex);
+        } finally {
+            DBManager.close(con, pstmt);
         }
         return false;
     }

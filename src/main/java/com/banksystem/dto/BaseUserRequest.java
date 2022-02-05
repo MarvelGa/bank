@@ -1,12 +1,12 @@
 package com.banksystem.dto;
 
 public class BaseUserRequest {
-    public String firstName;
-    public String lastName;
-    public String email;
-    public String password;
-    public String role;
-    public String dateOfBirth;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private String role;
+    private String dateOfBirth;
 
     public String getFirstName() {
         return firstName;

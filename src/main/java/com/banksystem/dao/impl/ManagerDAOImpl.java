@@ -2,7 +2,6 @@ package com.banksystem.dao.impl;
 
 import com.banksystem.dao.ManagerDAO;
 import com.banksystem.dao.dbmanager.DBManager;
-import com.banksystem.entity.Client;
 import com.banksystem.entity.Manager;
 import com.banksystem.exceptions.DAOException;
 
@@ -39,6 +38,7 @@ public class ManagerDAOImpl implements ManagerDAO {
 
     private static final String UPDATE_MANAGER = "UPDATE users SET first_name=?, last_name=?, email=?, passwords=? WHERE id =(SELECT m.user_id FROM managers m WHERE m.id=?)";
     private static final String DELETE_CLIENT = "DELETE FROM users u WHERE u.id=(SELECT m.user_id FROM managers m WHERE m.id=?)";
+
     @Override
     public Long create(Manager item) throws DAOException {
         final String insertUser = INSERT_USER;
@@ -79,6 +79,8 @@ public class ManagerDAOImpl implements ManagerDAO {
         } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't create Manager", ex);
+        } finally {
+            DBManager.close(con, pstmt, rs);
         }
         return insertedManagerId;
     }
@@ -109,6 +111,8 @@ public class ManagerDAOImpl implements ManagerDAO {
         } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't read Manager", ex);
+        } finally {
+            DBManager.close(con, pstmt, rs);
         }
         return manager;
     }
@@ -117,13 +121,13 @@ public class ManagerDAOImpl implements ManagerDAO {
     public boolean update(Manager item) throws DAOException {
         final String query = UPDATE_MANAGER;
         DBManager dbm;
-        Connection con =null;
-        PreparedStatement pstmt =null;
-        try{
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
             dbm = DBManager.getInstance();
             con = dbm.getConnection();
             pstmt = con.prepareStatement(query);
-            int k =1;
+            int k = 1;
             pstmt.setString(k++, item.getFirstName());
             pstmt.setString(k++, item.getLastName());
             pstmt.setString(k++, item.getEmail());
@@ -131,9 +135,11 @@ public class ManagerDAOImpl implements ManagerDAO {
             pstmt.setLong(k, item.getId());
             pstmt.executeUpdate();
             con.commit();
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             DBManager.rollback(con);
             throw new DAOException("Can't update Manager", ex);
+        } finally {
+            DBManager.close(con, pstmt);
         }
         return false;
     }
@@ -198,7 +204,7 @@ public class ManagerDAOImpl implements ManagerDAO {
     }
 
     @Override
-    public List<Manager> getAllManagersByClientId(Long clientId) throws DAOException{
+    public List<Manager> getAllManagersByClientId(Long clientId) throws DAOException {
         final String query = GET_MANAGERS_BY_CLIENT_ID;
         List<Manager> managers = new ArrayList<>();
         DBManager dbm;
