@@ -19,7 +19,7 @@ public class ClientController {
         this.userDAO = new ClientDAOImpl();
     }
 
-    @RequestMapping("/{managerId}/clients")
+    @GetMapping("/{managerId}/clients")
     public List<Client> getClientsByManagerId(@PathVariable Long managerId) {
         List<Client> result = null;
         try {
@@ -30,7 +30,7 @@ public class ClientController {
         return result;
     }
 
-    @RequestMapping("/clients")
+    @GetMapping("/clients")
     public List<Client> getClients() {
         List<Client> result = null;
         try {
@@ -41,7 +41,7 @@ public class ClientController {
         return result;
     }
 
-    @RequestMapping("/client/{clientId}")
+    @GetMapping("/client/{clientId}")
     public Client getClientById(@PathVariable Long clientId) {
         Client result = null;
         try {
@@ -79,6 +79,26 @@ public class ClientController {
         } catch (DAOException e) {
             e.printStackTrace();
         }
+    }
 
+    @PutMapping("/client")
+    public Client updateClient(@RequestBody RequestClient request) {
+        Client updated = null;
+
+        Client client = Client.builder()
+                .withId(request.getId())
+                .withFirstName(request.getFirstName())
+                .withLastName(request.getLastName())
+                .withEmail(request.getEmail())
+                .withPassword(request.getPassword())
+                .build();
+
+        try {
+            userDAO.update(client);
+            updated = userDAO.read(request.getId());
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+        return updated;
     }
 }

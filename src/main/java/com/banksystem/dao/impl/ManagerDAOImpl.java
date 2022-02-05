@@ -1,79 +1,49 @@
 package com.banksystem.dao.impl;
 
-import com.banksystem.dao.ClientDAO;
+import com.banksystem.dao.ManagerDAO;
 import com.banksystem.dao.dbmanager.DBManager;
 import com.banksystem.entity.Client;
+import com.banksystem.entity.Manager;
 import com.banksystem.exceptions.DAOException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientDAOImpl implements ClientDAO {
-    private static final String GET_CLIENTS_BY_MANAGER = "SELECT c.id, " +
+public class ManagerDAOImpl implements ManagerDAO {
+    private static final String GET_MANAGERS_BY_CLIENT_ID = "SELECT m.id, " +
+            "m.spacialization, " +
             "u.first_name, " +
-            "u.last_name, " +
-            "u.birth_day FROM clients c " +
-            "JOIN users u ON u.id=c.user_id " +
-            "WHERE c.id IN (SELECT a.client_id FROM accounts a JOIN managers m ON a.manager_id=m.id AND a.client_id=c.id AND m.id=?);";
+            "u.last_name " +
+            "FROM managers m J" +
+            "OIN users u ON u.id=m.user_id WHERE m.id IN (SELECT a.manager_id FROM accounts a JOIN clients c ON a.client_id=c.id AND a.manager_id=m.id AND c.id=?)";
 
-    private static final String GET_ALL_CLIENTS = "SELECT c.id, " +
-            "u.first_name, " +
-            "u.last_name, " +
-            "u.birth_day " +
-            "FROM clients c " +
-            "JOIN users u ON u.id=c.user_id";
-
-    private static final String GET_CLIENT_BY_ID = "SELECT c.id, " +
-            "u.first_name, " +
-            "u.last_name, " +
-            "u.birth_day " +
-            "FROM clients c " +
-            "JOIN users u ON u.id=c.user_id WHERE c.id=?";
 
     private static final String INSERT_USER = "INSERT INTO users (first_name, last_name, email, passwords, `role`, birth_day) VALUES ( ?, ?, ?, ?, ?, ? );";
-    private static final String INSERT_CLIENT = "INSERT INTO clients (user_id) VALUES (?);";
-    private static final String DELETE_CLIENT = "DELETE FROM users u WHERE u.id=(SELECT c.user_id FROM clients c WHERE c.id=?)";
-    private static final String UPDATE_CLIENT = "UPDATE users SET first_name=?, last_name=?, email=?, passwords=? WHERE id =(SELECT c.user_id FROM clients c WHERE c.id=?)";
-    @Override
-    public List<Client> getAllClientsByManagerId(Long managerId) throws DAOException {
-        final String query = GET_CLIENTS_BY_MANAGER;
-        List<Client> clients = new ArrayList<>();
-        DBManager dbm;
-        Statement stmt = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        Connection con = null;
-        try {
-            dbm = DBManager.getInstance();
-            con = dbm.getConnection();
-            pstmt = con.prepareStatement(query);
-            pstmt.setLong(1, managerId);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                Client client = Client.builder()
-                        .withId(rs.getLong("id"))
-                        .withFirstName(rs.getString("first_name"))
-                        .withLastName(rs.getString("last_name"))
-                        .withDateOfBirth(rs.getString("birth_day"))
-                        .build();
-                clients.add(client);
-            }
-            con.commit();
-        } catch (SQLException ex) {
-            DBManager.rollback(con);
-            throw new DAOException("Can't get Clients by Manager's id", ex);
-        } finally {
-            DBManager.close(con, stmt, rs);
-        }
-        return clients;
-    }
+    private static final String INSERT_MANAGER = "INSERT INTO managers (spacialization, user_id) VALUES (?,?);";
+    private static final String GET_MANAGER_BY_ID = "SELECT m.id, " +
+            "u.first_name, " +
+            "u.last_name, " +
+            "u.birth_day, " +
+            "m.spacialization " +
+            "FROM managers m " +
+            "JOIN users u ON u.id=m.user_id WHERE m.id=?";
 
+    private static final String GET_ALL_MANAGERS = "SELECT m.id, " +
+            "m.spacialization, " +
+            "u.first_name, " +
+            "u.last_name, " +
+            "u.birth_day " +
+            "FROM managers m " +
+            "JOIN users u ON u.id=m.user_id";
+
+    private static final String UPDATE_MANAGER = "UPDATE users SET first_name=?, last_name=?, email=?, passwords=? WHERE id =(SELECT m.user_id FROM managers m WHERE m.id=?)";
+    private static final String DELETE_CLIENT = "DELETE FROM users u WHERE u.id=(SELECT m.user_id FROM managers m WHERE m.id=?)";
     @Override
-    public Long create(Client item) throws DAOException {
+    public Long create(Manager item) throws DAOException {
         final String insertUser = INSERT_USER;
-        final String insertClient = INSERT_CLIENT;
-        Long insertedClientId = -1L;
+        final String insertClient = INSERT_MANAGER;
+        Long insertedManagerId = -1L;
         Long insertedUserId = -1L;
         DBManager dbm;
         PreparedStatement pstmt = null;
@@ -98,24 +68,25 @@ public class ClientDAOImpl implements ClientDAO {
             }
 
             pstmt = con.prepareStatement(insertClient, PreparedStatement.RETURN_GENERATED_KEYS);
-            pstmt.setLong(1, insertedUserId);
+            pstmt.setString(1, item.getSpecialization());
+            pstmt.setLong(2, insertedUserId);
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs != null && rs.next()) {
-                insertedClientId = rs.getLong(1);
+                insertedManagerId = rs.getLong(1);
             }
             con.commit();
         } catch (SQLException ex) {
             DBManager.rollback(con);
-            throw new DAOException("Can't create Client", ex);
+            throw new DAOException("Can't create Manager", ex);
         }
-        return insertedClientId;
+        return insertedManagerId;
     }
 
     @Override
-    public Client read(Long id) throws DAOException {
-        final String query = GET_CLIENT_BY_ID;
-        Client client = null;
+    public Manager read(Long id) throws DAOException {
+        final String query = GET_MANAGER_BY_ID;
+        Manager manager = null;
         DBManager dbm;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -127,23 +98,24 @@ public class ClientDAOImpl implements ClientDAO {
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                client = Client.builder()
+                manager = Manager.builder()
                         .withId(rs.getLong("id"))
                         .withFirstName(rs.getString("first_name"))
                         .withLastName(rs.getString("last_name"))
                         .withDateOfBirth(rs.getString("birth_day"))
+                        .withSpecialization(rs.getString("spacialization"))
                         .build();
             }
         } catch (SQLException ex) {
             DBManager.rollback(con);
-            throw new DAOException("Can't read Client", ex);
+            throw new DAOException("Can't read Manager", ex);
         }
-        return client;
+        return manager;
     }
 
     @Override
-    public boolean update(Client item) throws DAOException {
-        final String query = UPDATE_CLIENT;
+    public boolean update(Manager item) throws DAOException {
+        final String query = UPDATE_MANAGER;
         DBManager dbm;
         Connection con =null;
         PreparedStatement pstmt =null;
@@ -160,8 +132,8 @@ public class ClientDAOImpl implements ClientDAO {
             pstmt.executeUpdate();
             con.commit();
         }catch (SQLException ex){
-        DBManager.rollback(con);
-        throw new DAOException("Can't update Client", ex);
+            DBManager.rollback(con);
+            throw new DAOException("Can't update Manager", ex);
         }
         return false;
     }
@@ -184,7 +156,7 @@ public class ClientDAOImpl implements ClientDAO {
             con.commit();
         } catch (SQLException ex) {
             DBManager.rollback(con);
-            throw new DAOException("Can't delete Client by id", ex);
+            throw new DAOException("Can't delete Manager by id", ex);
         } finally {
             DBManager.close(con, psmt);
 
@@ -193,9 +165,9 @@ public class ClientDAOImpl implements ClientDAO {
     }
 
     @Override
-    public List<Client> readAll() throws DAOException {
-        final String query = GET_ALL_CLIENTS;
-        List<Client> clients = new ArrayList<>();
+    public List<Manager> readAll() throws DAOException {
+        final String query = GET_ALL_MANAGERS;
+        List<Manager> managers = new ArrayList<>();
         DBManager dbm;
         Statement stmt = null;
         ResultSet rs = null;
@@ -206,21 +178,56 @@ public class ClientDAOImpl implements ClientDAO {
             stmt = con.createStatement();
             rs = stmt.executeQuery(query);
             while (rs.next()) {
-                Client client = Client.builder()
+                Manager client = Manager.builder()
                         .withId(rs.getLong("id"))
+                        .withSpecialization(rs.getString("spacialization"))
                         .withFirstName(rs.getString("first_name"))
                         .withLastName(rs.getString("last_name"))
                         .withDateOfBirth(rs.getString("birth_day"))
                         .build();
-                clients.add(client);
+                managers.add(client);
             }
             con.commit();
         } catch (SQLException ex) {
             DBManager.rollback(con);
-            throw new DAOException("Can't read all Clients", ex);
+            throw new DAOException("Can't read all Managers", ex);
         } finally {
             DBManager.close(con, stmt, rs);
         }
-        return clients;
+        return managers;
+    }
+
+    @Override
+    public List<Manager> getAllManagersByClientId(Long clientId) throws DAOException{
+        final String query = GET_MANAGERS_BY_CLIENT_ID;
+        List<Manager> managers = new ArrayList<>();
+        DBManager dbm;
+        Statement stmt = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            dbm = DBManager.getInstance();
+            con = dbm.getConnection();
+            pstmt = con.prepareStatement(query);
+            pstmt.setLong(1, clientId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Manager manager = Manager.builder()
+                        .withId(rs.getLong("id"))
+                        .withFirstName(rs.getString("spacialization"))
+                        .withFirstName(rs.getString("first_name"))
+                        .withLastName(rs.getString("last_name"))
+                        .build();
+                managers.add(manager);
+            }
+            con.commit();
+        } catch (SQLException ex) {
+            DBManager.rollback(con);
+            throw new DAOException("Can't get Managers by Client's id", ex);
+        } finally {
+            DBManager.close(con, stmt, rs);
+        }
+        return managers;
     }
 }
