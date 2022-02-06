@@ -91,7 +91,6 @@ public class Account {
             return this;
         }
 
-
         public Account build() {
             return new Account(this, user);
         }
