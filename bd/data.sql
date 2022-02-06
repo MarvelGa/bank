@@ -19,3 +19,8 @@ INSERT INTO accounts (manager_id, client_id)
 VALUES
 ( 1, 1),
 ( 1, 2);
+
+INSERT INTO cards (`number`, amount, currency, account_id, expiration_date) VALUES
+('525654555', 2000000, 'USD', 2, '2026-02-16'),
+('553535353', 5000000, 'UAH', 2, '2030-01-15'),
+('533858545', 7000000, 'EUR', 2, '2025-05-11');

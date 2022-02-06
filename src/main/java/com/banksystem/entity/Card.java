@@ -14,7 +14,7 @@ public class Card {
     private final String number;
     private final Long amount;
     private final Currency currencyOfCard;
-    private final Integer expirationDate;
+    private final String expirationDate;
 
     public Card(Builder builder) {
         this.id = builder.id;
@@ -44,7 +44,7 @@ public class Card {
         return currencyOfCard;
     }
 
-    public Integer getExpirationDate() {
+    public String getExpirationDate() {
         return expirationDate;
     }
 
@@ -85,7 +85,7 @@ public class Card {
         private String number;
         private Long amount;
         private Currency currencyOfCard;
-        private Integer expirationDate;
+        private String expirationDate;
 
         public Builder() {
         }
@@ -110,7 +110,7 @@ public class Card {
             return this;
         }
 
-        public Builder withExpirationDate(Integer expirationDate) {
+        public Builder withExpirationDate(String expirationDate) {
             this.expirationDate = expirationDate;
             return this;
         }

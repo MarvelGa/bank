@@ -4,7 +4,6 @@ import com.banksystem.dao.AccountDAO;
 import com.banksystem.dao.dbmanager.DBManager;
 import com.banksystem.dto.AccountResponse;
 import com.banksystem.dto.RequestAccount;
-import com.banksystem.entity.Account;
 import com.banksystem.exceptions.DAOException;
 
 import java.sql.*;

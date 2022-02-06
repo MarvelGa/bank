@@ -19,7 +19,7 @@ public class Main {
                 .withNumber("102020")
                 .withAmount(20000L)
                 .withCurrencyOfCard(Card.Currency.UAH)
-                .withExpirationDate(012023)
+                .withExpirationDate("012023")
                 .build();
 
         Card card2 = Card.builder()
@@ -27,7 +27,7 @@ public class Main {
                 .withNumber("5456815")
                 .withAmount(10000L)
                 .withCurrencyOfCard(Card.Currency.EUR)
-                .withExpirationDate(012023)
+                .withExpirationDate("012023")
                 .build();
 
         Card card3 = Card.builder()
@@ -35,7 +35,7 @@ public class Main {
                 .withNumber("8265454")
                 .withAmount(19000L)
                 .withCurrencyOfCard(Card.Currency.USD)
-                .withExpirationDate(012023)
+                .withExpirationDate("012023")
                 .build();
 
 
